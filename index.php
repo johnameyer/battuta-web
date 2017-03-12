@@ -81,9 +81,11 @@
 	<script>
 		var map;
 		function initMap() {
+			center = {lat: 41.7045216, lng: -86.233559};
 			map = new google.maps.Map($('#map')[0], {
 				zoom: 15,
 				streetViewControl: false,
+				center: center
 			});
 			var markers = [
 			marker("Notre Dame Main Building",{lat:41.702626,lng:-86.238964},"https://c1.staticflickr.com/5/4071/4460902921_16433d8a60_b.jpg")
