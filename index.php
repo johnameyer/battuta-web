@@ -113,9 +113,9 @@
 				</div>
 				<div class="navbar-header pull-right">
 					<ul class="nav pull-left">
-						<li class="navbar-text pull-left"><a href="#">Profile</a></li>
-						<li class="navbar-text pull-left"><a href="#">My Tours</a></li>
-						<li class="navbar-text pull-left"><a href="#">Friends</a></li>
+						<li class="navbar-text pull-left"><a href="#"><i class="fa fa-user-circle" aria-hidden="true"></i> My Profile</a></li>
+						<li class="navbar-text pull-left"><a href="#"><i class="fa fa-video-camera" aria-hidden="true"></i> My Tours</a></li>
+						<li class="navbar-text pull-left"><a href="#"><i class="fa fa-users" aria-hidden="true"></i> My Friends</a></li>
 					</ul>
 				</div>
 			</div>
