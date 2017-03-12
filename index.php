@@ -38,16 +38,42 @@
 			height: 100vh;
 			width: 100vw;
 		}
+		#overlay {
+			z-index:1000;
+			background-color: #333;
+			opacity:.4;
+			width:100%;
+			height:100%;
+			position: absolute;
+			top:0px;
+		}
+		.close {
+			margin-left: 90%;
+		}
+		img.play {
+			position: relative;
+			margin:auto;
+		}
+		span{
+			display: inline-block;
+			width: 15vw;
+		}
+		span.grey{
+			color: #bbb;
+		}
+		span.green {
+			color: #4eb660;
+		}
+		span.red {
+			color:#ed7575;
+		}
+		video.v1 {
+			background-color: #4eb660;
+		}
+		video.v2 {
+			background-color: #33454f;
+		}
 		@media screen and (min-width: 480px) {
-			#overlay {
-				z-index:1000;
-				background-color: #333;
-				opacity:.4;
-				width:100%;
-				height:100%;
-				position: absolute;
-				top:0px;
-			}
 			#popup {
 				z-index: 2000;
 				position: absolute;
@@ -55,10 +81,16 @@
 				margin: 10vh 20vw;
 				height: 80vh;
 				width: 60vw;
+				overflow-y: hidden;
+				overflow-x: hidden;
 			}
-		}
-		.close {
-			margin-left: 95%;
+			#popup.flow {
+				overflow-y: scroll;
+				overflow-x: hidden;
+			}
+			span{
+				width: 3vw;
+			}
 		}
 	</style>
 	<script src="https://use.fontawesome.com/763405a8db.js"></script>
@@ -88,7 +120,10 @@
 				center: center
 			});
 			var markers = [
-			marker("Notre Dame Main Building",{lat:41.702626,lng:-86.238964},"https://c1.staticflickr.com/5/4071/4460902921_16433d8a60_b.jpg")
+			marker("Notre Dame Main Building",{lat:41.703026, lng:-86.238964},"img/domeCover.png","mov/oscar/main_build.mp4","mov/dome.mp4"),
+			marker("Hesburgh Library",{lat:41.702358, lng:-86.234194},""),
+			marker("Basilica of the Sacred Heart",{lat:41.7026517,lng:-86.23974629999998},"img/basilCover.png","mov/chris/basilica.mp4","mov/basil.mp4"),
+			marker("LaFortune Student Center",{lat:41.7019183,lng:-86.23766969999997},""),
 			];
 			var markerCluster = new MarkerClusterer(map, markers,{imagePath: 'img/m'});
 			google.maps.event.addListener(markerCluster, 'clusterclick', function(cluster) {
@@ -99,18 +134,19 @@
 				// combine results somehow?
 			});
 		}
-		function marker(name,loc,img){
+		function marker(name,loc,img, mov1, mov2){
 			var marker = new google.maps.Marker({
 				position: loc,
 				map: map,
 				title: name
 			});
-			content = '<div class="close" onclick="popup()"><i class="fa fa-times fa-lg"></i></div><br/><div class="text-center">';
-			content += "<h1>"+name+'</h1><br/><img style="height:20vh;display:block;margin-left:auto;margin-right:auto;" src=\"'+img+"\"></img><br/>";
-			content += '<div class="col-md-5 col-md-offset-1></div><div class="col-md-5></div>"'
+			var content = '<div class="close" onclick="popup()"><i class="fa fa-times fa-lg"></i></div><br/><div class="text-center">';
+			content += "<h1>"+name+'</h1><img style="height:20vh;display:block;margin-left:auto;margin-right:auto;" src=\"'+img+"\"></img><h2>Recommended for you:</h2>";
+			content += '<div class="row"><div class="col-md-5 col-md-offset-1"><video width="100%" class="aspect v1" controls><source src="'+mov1+'" type="video/mp4"></video><br/><span class="grey"><i class="fa fa-eye"></i> 8300</span> <span class="green"><i class="fa fa-comment"></i> 53</span> <span class="red"><i class="fa fa-heart"></i> 98</span></div><div class="col-md-5"><video width="100%" class="aspect v2" controls><source src="'+mov2+'" type="video/mp4"></video><br/><span class="grey"><i class="fa fa-eye"></i> 6557</span> <span class="green"><i class="fa fa-comment"></i> 43</span> <span class="red"><i class="fa fa-heart"></i> 10</span></div></div></div>'
+			content += '<div class="row"><div class="col-md-5 col-md-offset-1 text-center"></div>';
 			content += '</div>';
 			google.maps.event.addListener(marker, 'click', function() {
-				popup(content,"80vh");
+				popup(content,"80vh",true);
 			});
 			return marker;
 		}
@@ -133,15 +169,17 @@
 		function init(login){
 			if(login){
 				popup('<br/><div class="text-center"><form class="form-horizontal" onsubmit="return false;"><fieldset><legend>Login</legend><div class="form-group"><label class="col-md-4 control-label" for="username">Username</label>  <div class="col-md-4"><input id="username" name="username" type="text" placeholder="user" class="form-control input-md" required="">    </div></div><div class="form-group"><label class="col-md-4 control-label" for="password">Password</label><div class="col-md-4"><input id="password" name="password" type="password" placeholder="password" class="form-control input-md" required=""></div></div><div class="form-group"><div class="col-md-1 col-md-offset-7"><button id="login" name="login" class="btn btn-default">Submit</button></div></div></fieldset></form></div>',-1);
+				$("#popup").css("top","30vh");
 				$("#login").click(function(){
 					//set cookies?
 					//load config?
 					popup();
+					$("#popup").css("top","0px");
 				});
 			} else
 			popup();
 		}
-		function popup(content,height) {
+		function popup(content,height,flow) {
 			if(content == undefined || content == ""){
 				$("#popup").hide();
 				$("#overlay").hide();
@@ -149,13 +187,18 @@
 				$("#popup").show();
 				$("#overlay").show();
 				$("#popup").html(content);
-				if(height == undefined || height == -1){
+				if($(window).width()<480 || height == undefined || height == -1){
 					$("#popup").height("auto");
 				} else {
 					$("#popup").height(height);
 				}
+				if(flow == undefined || flow == false){
+					$("#popup").removeClass("flow");
+				} else {
+					$("#popup").addClass("flow");
+				}
 			}
-
+			$("video.aspect").each(function(){$(this).height($(this).width()*3/4);});
 		}
 	</script>
 </body>
