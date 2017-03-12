@@ -137,9 +137,9 @@
 				center: center
 			});
 			var markers = [
-			marker("Notre Dame Main Building",{lat:41.703026, lng:-86.238964},"img/domeCover.png","mov/oscar/main_build.mp4","mov/dome.mp4"),
+			marker("Notre Dame Main Building",{lat:41.703026, lng:-86.238964},"img/domeCover.png","mov/main_build.mp4","mov/dome.mp4"),
 			marker("Hesburgh Library",{lat:41.702358, lng:-86.234194},""),
-			marker("Basilica of the Sacred Heart",{lat:41.7026517,lng:-86.23974629999998},"img/basilCover.png","mov/chris/basilica.mp4","mov/basil.mp4"),
+			marker("Basilica of the Sacred Heart",{lat:41.7026517,lng:-86.23974629999998},"img/basilCover.png","mov/basilica.mp4","mov/basil.mp4"),
 			marker("LaFortune Student Center",{lat:41.7019183,lng:-86.23766969999997},""),
 			];
 			var markerCluster = new MarkerClusterer(map, markers,{imagePath: 'img/m'});
