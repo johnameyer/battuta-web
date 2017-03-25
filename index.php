@@ -80,6 +80,15 @@
 		li.navbar-text>a {
 			padding: 0px 10px;
 		}
+
+		.btn-default:hover{
+			color: #333;
+			background-color: #fff;
+			border-color: #ccc;
+		}
+		.sm-hide {
+			display: none;
+		}
 		@media screen and (min-width: 480px) {
 			#popup {
 				z-index: 2000;
@@ -101,6 +110,14 @@
 			.navbar-form {
 				margin: 0px;
 			}
+			.btn-default:hover {
+				color: #333;
+				background-color: #e6e6e6;
+				border-color: #adadad;
+			}
+			.sm-hide {
+				display: initial;
+			}
 		}
 	</style>
 	<script src="https://use.fontawesome.com/763405a8db.js"></script>
@@ -112,176 +129,196 @@
 			<!-- Title -->
 			<div class="navbar-header pull-left">
 				<a class="navbar-brand" href="#"> 
-					<span><img alt="Brand" src="img/icon.png" style="height: 100%"/> Battuta</a></span>
+					<span><img alt="Brand" src="img/icon.png" style="height: 100%"/><span class="sm-hide"> Battuta</span></a></span>
 				</a>
 			</div>
 			<div class="navbar-header pull-right">
 				<ul class="nav pull-left">
-					<li class="navbar-text pull-left"><a href="#"><i class="fa fa-info" aria-hidden="true"></i> Information</a></li>
-					<li class="navbar-text pull-left"><a href="#"><i class="fa fa-home" aria-hidden="true"></i> Our Site</a></li>
-					<li class="navbar-text pull-left" style="margin: 7px 0px;">
-					<form class="navbar-form" target="#">
-						<div class="form-group">
+					<li class="navbar-text pull-left"><a href="#"><i class="fa fa-info" aria-hidden="true"></i><span class="search-hide"> Nearby</span></a></li>
+					<li class="navbar-text pull-left"><a href="#"><i class="fa fa-home" aria-hidden="true"></i><span class="search-hide"> Our Site</span></a></li>
+					<span id="search-elem">
+						<li class="navbar-text pull-left" style="margin: 7px 0px;">
 							<input type="text" class="form-control" id="search" placeholder="Search">
-						</div>
-						<button type="submit" class="btn btn-default">Submit</button>
-					</form>
-				</li>
-			</ul>
+						</li>
+						<li class="navbar-text pull-left" style="margin: 7px 0px;">
+							<button type="submit" id="submit" class="btn btn-default">Search</button>
+						</li>
+					</span>
+				</ul>
+			</div>
 		</div>
-	</div>
-</nav>
+	</nav>
 
-<div id="map"></div>
-<div id="overlay">
-</div>
-<div id="popup" class="panel">
-</div>
-<script>
-	var map;
-	function initMap() {
-		center = {lat: 41.7045216, lng: -86.233559};
-		map = new google.maps.Map($('#map')[0], {
-			zoom: 15,
-			streetViewControl: false,
-			center: center
-		});
-		var markers = [
-		marker("Notre Dame Main Building",{lat:41.703026, lng:-86.238964},"img/domeCover.png","mov/main_build.mp4","mov/dome.mp4"),
-		marker("Hesburgh Library",{lat:41.702358, lng:-86.234194},""),
-		marker("Basilica of the Sacred Heart",{lat:41.7026517,lng:-86.23974629999998},"img/basilCover.png","mov/basilica.mp4","mov/basil.mp4"),
-		marker("LaFortune Student Center",{lat:41.7019183,lng:-86.23766969999997},""),
-		];
-		var markerCluster = new MarkerClusterer(map, markers,{imagePath: 'img/m'});
-		google.maps.event.addListener(markerCluster, 'clusterclick', function(cluster) {
-			console.log('Test');
-			map.setCenter(cluster.getCenter());
-			cluster.getMarkers();
-			cluster.getSize();
+	<div id="map"></div>
+	<div id="overlay">
+	</div>
+	<div id="popup" class="panel">
+	</div>
+	<script>
+		var map;
+		function initMap() {
+			center = {lat: 41.7045216, lng: -86.233559};
+			map = new google.maps.Map($('#map')[0], {
+				zoom: 15,
+				streetViewControl: false,
+				center: center
+			});
+			var markers = [
+			marker("Notre Dame Main Building",{lat:41.703026, lng:-86.238964},"img/domeCover.png","mov/main_build.mp4","mov/dome.mp4"),
+			marker("Hesburgh Library",{lat:41.702358, lng:-86.234194},""),
+			marker("Basilica of the Sacred Heart",{lat:41.7026517,lng:-86.23974629999998},"img/basilCover.png","mov/basilica.mp4","mov/basil.mp4"),
+			marker("LaFortune Student Center",{lat:41.7019183,lng:-86.23766969999997},""),
+			];
+			var markerCluster = new MarkerClusterer(map, markers,{imagePath: 'img/m'});
+			google.maps.event.addListener(markerCluster, 'clusterclick', function(cluster) {
+				console.log('Test');
+				map.setCenter(cluster.getCenter());
+				cluster.getMarkers();
+				cluster.getSize();
 				// combine results somehow?
 			});
-	}
-	function marker(name,loc,img, mov1, mov2){
-		var marker = new google.maps.Marker({
-			position: loc,
-			map: map,
-			title: name
-		});
-		var content = '<div class="close" onclick="popup()"><i class="fa fa-times fa-lg"></i></div><br/><div class="text-center">';
-		content += "<h1>"+name+'</h1><img style="height:20vh;display:block;margin-left:auto;margin-right:auto;" src=\"'+img+"\"></img><h2>Recommended for you:</h2>";
-		content += '<div class="row"><div class="col-md-5 col-md-offset-1"><video width="100%" class="aspect v1" controls><source src="'+mov1+'" type="video/mp4"></video><br/><span class="grey"><i class="fa fa-eye"></i> 8300</span> <span class="green"><i class="fa fa-comment"></i> 53</span> <span class="red"><i class="fa fa-heart"></i> 98</span></div><div class="col-md-5"><video width="100%" class="aspect v2" controls><source src="'+mov2+'" type="video/mp4"></video><br/><span class="grey"><i class="fa fa-eye"></i> 6557</span> <span class="green"><i class="fa fa-comment"></i> 43</span> <span class="red"><i class="fa fa-heart"></i> 10</span></div></div></div>'
-		content += '<div class="row"><div class="col-md-5 col-md-offset-1 text-center"></div>';
-		content += '</div>';
-		google.maps.event.addListener(marker, 'click', function() {
-			popup(content,"80vh",true);
-		});
-		return marker;
-	}
-</script>
-<script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
-<script type="text/javascript" src="lib/bootstrap.min.js"></script>
-<script src="lib/markerclusterer.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0m8B_Vwfn3FRIBkQk4gQWeTfjlxmRB6A&callback=initMap"
-async defer></script>
-<script type="text/javascript">
-
-	popup();
-	toggleFullScreen();
-	locate();
-	$("nav form").submit(function(e) {
-    	e.preventDefault();
-		searchq();
-	});
-	function pos(position) {
-		map.setCenter({lat: position.coords.latitude, lng: position.coords.longitude});
-		var marker = new google.maps.Marker({
-			position: {lat: position.coords.latitude, lng: position.coords.longitude},
-			map: map,
-			icon: "https://mt.google.com/vt/icon/name=icons/spotlight/star_L_8x.png&scale=1"
-		});
-	}
-	function locate(){
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(pos);
-			setTimeout(locate, 500);
-		} else {
-			console.log("Geolocation is not supported by this browser.");
 		}
-	}
-	function searchq(){
-		var text = $('#search').val();
-		var content = text;
-		popup(content,"80vh",false);
-	}
-	function popup(content,height,flow) {
-		if(content == undefined || content == ""){
-			$("#popup").hide();
-			$("#overlay").hide();
-		} else {
-			$("#popup").show();
-			$("#overlay").show();
-			$("#popup").html(content);
-			if($(window).width()<480 || height == undefined || height == -1){
-				$("#popup").height("auto");
-			} else {
-				$("#popup").height(height);
+		function marker(name,loc,img, mov1, mov2){
+			var marker = new google.maps.Marker({
+				position: loc,
+				map: map,
+				title: name
+			});
+			var content = '<div class="close" onclick="popup()"><i class="fa fa-times fa-lg"></i></div><br/><div class="text-center">';
+			content += "<h1>"+name+'</h1><img style="height:20vh;display:block;margin-left:auto;margin-right:auto;" src=\"'+img+"\"></img><h2>Recommended for you:</h2>";
+			content += '<div class="row"><div class="col-md-5 col-md-offset-1"><video width="100%" class="aspect v1" controls><source src="'+mov1+'" type="video/mp4"></video><br/><span class="grey"><i class="fa fa-eye"></i> 8300</span> <span class="green"><i class="fa fa-comment"></i> 53</span> <span class="red"><i class="fa fa-heart"></i> 98</span></div><div class="col-md-5"><video width="100%" class="aspect v2" controls><source src="'+mov2+'" type="video/mp4"></video><br/><span class="grey"><i class="fa fa-eye"></i> 6557</span> <span class="green"><i class="fa fa-comment"></i> 43</span> <span class="red"><i class="fa fa-heart"></i> 10</span></div></div></div>'
+			content += '<div class="row"><div class="col-md-5 col-md-offset-1 text-center"></div>';
+			content += '</div>';
+			google.maps.event.addListener(marker, 'click', function() {
+				popup(content,"80vh",true);
+			});
+			return marker;
+		}
+	</script>
+	<script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="lib/bootstrap.min.js"></script>
+	<script src="lib/markerclusterer.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0m8B_Vwfn3FRIBkQk4gQWeTfjlxmRB6A&callback=initMap"
+	async defer></script>
+	<script type="text/javascript">
+
+		popup();
+		toggleFullScreen();
+		locate();
+		var visible = true;
+		$("#submit").click(function(e) {
+			if(visible){
+				searchq();
+				$('#search').val("");
+				$('#search-elem').mouseout();
 			}
-			if(flow == undefined || flow == false){
-				$("#popup").removeClass("flow");
+		});
+		if($(window).width() < 480){
+			visible = false;
+			$("#search").hide().width("35%");
+			$("#search-elem").click(function(){
+				visible = true;
+				$(".search-hide").hide();
+				$("#search").show();
+			});
+			$(document).click(function(event) { 
+				if(!$(event.target).closest('#search-elem').length) {
+					visible = false;
+					$(".search-hide").show();
+					$("#search").hide();
+				}        
+			});
+		}
+		function searchq(){
+			var text = $('#search').val();
+			var content = text;
+			popup(content,"80vh",false);
+		}
+		function pos(position) {
+			map.setCenter({lat: position.coords.latitude, lng: position.coords.longitude});
+			var marker = new google.maps.Marker({
+				position: {lat: position.coords.latitude, lng: position.coords.longitude},
+				map: map,
+				icon: "https://mt.google.com/vt/icon/name=icons/spotlight/star_L_8x.png&scale=1"
+			});
+		}
+		function locate(){
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(pos);
+				setTimeout(locate, 500);
 			} else {
-				$("#popup").addClass("flow");
+				console.log("Geolocation is not supported by this browser.");
 			}
 		}
-		$("video.aspect").each(function(){$(this).height($(this).width()*3/4);});
-	}
-	function toggleFullScreen() {
-		var doc = window.document;
-		var docEl = doc.documentElement;
-
-		var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-		var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-
-		if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-			requestFullScreen.call(docEl);
+		function popup(content,height,flow) {
+			if(content == undefined || content == ""){
+				$("#popup").hide();
+				$("#overlay").hide();
+			} else {
+				$("#popup").show();
+				$("#overlay").show();
+				$("#popup").html(content);
+				if($(window).width()<480 || height == undefined || height == -1){
+					$("#popup").height("auto");
+				} else {
+					$("#popup").height(height);
+				}
+				if(flow == undefined || flow == false){
+					$("#popup").removeClass("flow");
+				} else {
+					$("#popup").addClass("flow");
+				}
+			}
+			$("video.aspect").each(function(){$(this).height($(this).width()*3/4);});
 		}
-		else {
-			cancelFullScreen.call(doc);
+		function toggleFullScreen() {
+			var doc = window.document;
+			var docEl = doc.documentElement;
+
+			var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+			var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+			if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+				requestFullScreen.call(docEl);
+			}
+			else {
+				cancelFullScreen.call(doc);
+			}
 		}
-	}
-	var levenshteinenator = (function () {
-	 function levenshteinenator(a, b) {
-	 	var cost;
-	 	var m = a.length;
-	 	var n = b.length;
-	 	if (m < n) {
-	 		var c = a; a = b; b = c;
-	 		var o = m; m = n; n = o;
-	 	}
+		var levenshteinenator = (function () {
+			function levenshteinenator(a, b) {
+				var cost;
+				var m = a.length;
+				var n = b.length;
+				if (m < n) {
+					var c = a; a = b; b = c;
+					var o = m; m = n; n = o;
+				}
 
-	 	var r = []; r[0] = [];
-	 	for (var c = 0; c < n + 1; ++c) {
-	 		r[0][c] = c;
-	 	}
+				var r = []; r[0] = [];
+				for (var c = 0; c < n + 1; ++c) {
+					r[0][c] = c;
+				}
 
-	 	for (var i = 1; i < m + 1; ++i) {
-	 		r[i] = []; r[i][0] = i;
-	 		for ( var j = 1; j < n + 1; ++j ) {
-	 			cost = a.charAt( i - 1 ) === b.charAt( j - 1 ) ? 0 : 1;
-	 			r[i][j] = minimator( r[i-1][j] + 1, r[i][j-1] + 1, r[i-1][j-1] + cost );
-	 		}
-	 	}
+				for (var i = 1; i < m + 1; ++i) {
+					r[i] = []; r[i][0] = i;
+					for ( var j = 1; j < n + 1; ++j ) {
+						cost = a.charAt( i - 1 ) === b.charAt( j - 1 ) ? 0 : 1;
+						r[i][j] = minimator( r[i-1][j] + 1, r[i][j-1] + 1, r[i-1][j-1] + cost );
+					}
+				}
 
-	 	return r;
-	 }
-	 function minimator(x, y, z) {
-	 	if (x <= y && x <= z) return x;
-	 	if (y <= x && y <= z) return y;
-	 	return z;
-	 }
+				return r;
+			}
+			function minimator(x, y, z) {
+				if (x <= y && x <= z) return x;
+				if (y <= x && y <= z) return y;
+				return z;
+			}
 
-	 return levenshteinenator;
+			return levenshteinenator;
 
-	}());
-</script>
+		}());
+	</script>
 </body>
 </html>
