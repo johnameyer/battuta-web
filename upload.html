@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Battuta</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<!-- ITouch settings -->
+	<link rel="apple-touch-icon" href="img/icon.png" />
+	<link rel="apple-touch-startup-image" href="img/splash.png" />
+	<meta name="apple-mobile-web-app-title" content="Battuta" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="mobile-web-app-capable" content="yes">
+
+	<link href="styles/bootstrap.min.css" rel="stylesheet" />
+	<style type="text/css">
+		.center {
+			min-height: 100%;
+			min-height: 100vh;
+
+			display: flex;
+			align-items: center;
+		}
+		form{
+			width:50vw;
+		}
+	</style>
+</head>
+<body>
+	<div class="center">
+		<div class="container-fluid" >
+			<form action="uploadBackend.php" method="POST" enctype="multipart/form-data" class="form-horizontal">
+				<fieldset>
+
+					<!-- Form Name -->
+					<legend>Upload Video</legend>
+
+					<!-- Text input-->
+					<div class="form-group">
+						<label class="col-md-4 control-label" for="name">Your Name: </label>  
+						<div class="col-md-4">
+							<input id="name" name="name" type="text" placeholder="John Smith" class="form-control input-md" required="">
+
+						</div>
+					</div>
+
+					<!-- Select Basic -->
+					<div class="form-group">
+						<label class="col-md-4 control-label" for="city">City: </label>
+						<div class="col-md-4">
+							<select id="city" name="city" class="form-control">
+								<option value="0">Notre Dame, IN</option>
+								<option value="0">Charleston, SC</option>
+								<option value="0">Chicago, IL</option>
+								<option value="0">New York, NC</option>
+								<option value="0">San Francisco, CA</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Text input-->
+					<div class="form-group">
+						<label class="col-md-4 control-label" for="attraction">Landmark:</label>  
+						<div class="col-md-4">
+							<input id="attraction" name="attraction" type="text" placeholder="Main Building" class="form-control input-md" required="">
+							<span class="help-block">What is the name of the building/place you made the video about?</span>  
+						</div>
+					</div>
+
+					<!-- File Button --> 
+					<div class="form-group">
+						<label class="col-md-4 control-label" for="fileToUpload">Upload:</label>
+						<div class="col-md-4">
+							<input type="hidden" name="MAX_FILE_SIZE" value="1000000000" />
+							<input id="fileToUpload" name="fileToUpload" class="input-file" type="file">
+						</div>
+					</div>
+
+					<!-- Button -->
+					<div class="form-group">
+						<div class="col-md-2 col-md-offset-6">
+							<button id="submit" name="submit" type="submit" class="btn btn-default" style="float: right;" >Upload Movie</button>
+						</div>
+					</div>
+
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
