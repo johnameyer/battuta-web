@@ -28,6 +28,10 @@
 			width:50vw;
 		}
 	</style>
+
+	<script type="text/javascript" src="lib/plupload/plupload.full.min.js"></script>
+	<script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="lib/bootstrap.min.js"></script>
 </head>
 <body>
 	<div class="center">
@@ -65,7 +69,7 @@
 					<div class="form-group">
 						<label class="col-md-4 control-label" for="attraction">Landmark:</label>  
 						<div class="col-md-4">
-							<input id="attraction" name="attraction" type="text" placeholder="Main Building" class="form-control input-md" required="">
+							<input id="attraction" name="attraction" type="text" placeholder="Main Building" class="form-control input-md" required="" />
 							<span class="help-block">What is the name of the building/place you made the video about?</span>  
 						</div>
 					</div>
@@ -74,15 +78,17 @@
 					<div class="form-group">
 						<label class="col-md-4 control-label" for="fileToUpload">Upload:</label>
 						<div class="col-md-4">
-							<input type="hidden" name="MAX_FILE_SIZE" value="1000000000" />
-							<input id="fileToUpload" name="fileToUpload" class="input-file" type="file">
+							<a id="pickfiles" href="javascript:;">[Select file]</a> 
+							<div id="filelist">Your browser doesn't have Flash, Silverlight or HTML5 support.</div>
 						</div>
 					</div>
+					<input hidden="true" id="filename" type="text" />
+					<!-- Google recaptcha -->
 
 					<!-- Button -->
 					<div class="form-group">
 						<div class="col-md-2 col-md-offset-6">
-							<button id="submit" name="submit" type="submit" class="btn btn-default" style="float: right;" >Upload Movie</button>
+							<input id="submit" name="submit" type="submit" class="btn btn-default" value="Upload Movie" style="float: right;" />
 						</div>
 					</div>
 
@@ -90,5 +96,159 @@
 			</form>
 		</div>
 	</div>
+	<pre id="console"></pre>
+	<script type="text/javascript">
+		// Custom example logic
+
+		var uploader = new plupload.Uploader({
+			runtimes : 'html5,flash,silverlight,html4',
+			url : 'upload.php',
+			browse_button : 'pickfiles',
+			flash_swf_url : 'lib/plupload/Moxie.swf',
+			silverlight_xap_url : 'lib/plupload/plupload/Moxie.xap',
+			max_file_count : 1,
+			multi_selection: false,
+
+			filters : {
+				max_file_size : '1gb',
+				mime_types: [
+				{title : "Movie files", extensions : "mp4"}
+				]
+			},
+
+			init: {
+				PostInit: function() {
+					$('#filelist').html('');
+
+					$('#submit').click(function(e) {
+						uploader.start();
+						e.preventDefault();
+						return false;
+					});
+				},
+
+				FilesAdded: function(up, files) {
+					var fileCount = up.files.length;
+					i = 0;
+					ids = $.map(up.files, function (item) { return item.id; });
+
+					for (i = 0; i < fileCount - 1; i++) {
+						uploader.removeFile(uploader.getFile(ids[i]));
+					}
+					file = uploader.getFile(ids[fileCount-1]);
+					document.getElementById('filelist').innerHTML = '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>';
+					$("#pickfiles").html("[Replace file]");
+				},
+
+				UploadProgress: function(up, file) {
+					document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
+					
+					log('[UploadProgress]', 'File:', file, "Total:", up.total);
+				},
+
+				Error: function(up, err) {
+					document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message));
+					log('[Error] ', args);
+				},
+				 
+				Browse: function(up) {
+					log('[Browse]');
+				},
+
+				Refresh: function(up) {
+					log('[Refresh]');
+				},
+				 
+				StateChanged: function(up) {
+					log('[StateChanged]', up.state == plupload.STARTED ? "STARTED" : "STOPPED");
+				},
+				 
+				QueueChanged: function(up) {
+					log('[QueueChanged]');
+				},
+
+				OptionChanged: function(up, name, value, oldValue) {
+					log('[OptionChanged]', 'Option Name: ', name, 'Value: ', value, 'Old Value: ', oldValue);
+				},
+
+				BeforeUpload: function(up, file) {
+					log('[BeforeUpload]', 'File: ', file);
+				},
+
+				FileFiltered: function(up, file) {
+					log('[FileFiltered]', 'File:', file);
+				},
+				 
+				FilesRemoved: function(up, files) {
+					log('[FilesRemoved]');
+					 
+					plupload.each(files, function(file) {
+						log('  File:', file);
+					});
+				},
+				 
+				FileUploaded: function(up, file, info) {
+					log('[FileUploaded] File:', file, "Info:", info);
+				},
+				 
+				ChunkUploaded: function(up, file, info) {
+					log('[ChunkUploaded] File:', file, "Info:", info);
+				},
+
+				UploadComplete: function(up, files) {
+					log('[UploadComplete]');
+					$("form").submit();
+				},
+
+				Destroy: function(up) {
+					log('[Destroy] ');
+				}
+			}
+		});
+
+		uploader.init();
+		function log() {
+			var str = "";
+			 
+			plupload.each(arguments, function(arg) {
+				var row = "";
+				 
+				if (typeof(arg) != "string") {
+					plupload.each(arg, function(value, key) {
+						if (arg instanceof plupload.File) {
+							switch (value) {
+								case plupload.QUEUED:
+								value = 'QUEUED';
+								break;
+								 
+								case plupload.UPLOADING:
+								value = 'UPLOADING';
+								break;
+								 
+								case plupload.FAILED:
+								value = 'FAILED';
+								break;
+								 
+								case plupload.DONE:
+								value = 'DONE';
+								break;
+							}
+						}
+						 
+						if (typeof(value) != "function") {
+							row += (row ? ', ' : '') + key + '=' + value;
+						}
+					});
+					 
+					str += row + " ";
+				} else {
+					str += arg + " ";
+				}
+			});
+			 
+			console.log(str);
+		}
+
+	</script>
 </body>
 </html>
