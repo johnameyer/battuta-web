@@ -152,7 +152,7 @@
 			<div class="navbar-header pull-right">
 				<ul class="nav pull-left">
 					<li class="navbar-text pull-left"><a href="#"><i class="fa fa-info" aria-hidden="true"></i><span class="search-hide"> Nearby</span></a></li>
-					<li class="navbar-text pull-left"><a href="#"><i class="fa fa-home" aria-hidden="true"></i><span class="search-hide"> Our Site</span></a></li>
+					<li class="navbar-text pull-left"><a href="http://www.battutatour.com/"><i class="fa fa-home" aria-hidden="true"></i><span class="search-hide"> Our Site</span></a></li>
 					<span id="search-elem">
 						<li class="navbar-text pull-left" style="margin: 7px 0px;">
 							<input type="text" class="form-control" id="search" placeholder="Search">
@@ -167,9 +167,9 @@
 	</nav>
 
 	<div id="map"></div>
-	<div id="overlay">
+	<div id="overlay" style="display: none;">
 	</div>
-	<div id="popup" class="panel panel-default">
+	<div id="popup" class="panel panel-default" style="display: none">
 	</div>
 	<video controls>
 		<source src="movie.mp4" type="video/mp4">
