@@ -10,7 +10,7 @@ $videos = null;
 switch($_GET['id']){
 	case 0:
 	$videos = array(array(
-		vid("main_build.mp4","Chris",22,"chris.jpg"),
+		vid("QOlTaYp_QGo","Chris",22,"chris.jpg"),
 		vid(".mp4","Jack",22,"jack.jpg")
 		),
 	array(

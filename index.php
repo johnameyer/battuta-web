@@ -171,35 +171,33 @@
 	</div>
 	<div id="popup" class="panel panel-default" style="display: none">
 	</div>
-	<video controls>
-		<source src="movie.mp4" type="video/mp4">
-		</video>
-		<script>
-			var map;
-			var markers = [];
-			markerCluster = null;
-			function initMap() {
-				center = {lat: 41.7045216, lng: -86.233559};
-				map = new google.maps.Map($('#map')[0], {
-					zoom: 15,
-					streetViewControl: false,
-					center: center
-				});
-				markerCluster = new MarkerClusterer(map, markers,{imagePath: 'img/m'});
-				google.maps.event.addListener(markerCluster, 'clusterclick', function(cluster) {
-					map.setCenter(cluster.getCenter());
-					cluster.getMarkers();
-					cluster.getSize();
-				});
-			}
-			function marker(name,loc,id){
-				var marker = new google.maps.Marker({
-					position: loc,
-					map: map,
-					title: name
-				});
-				$.getJSON("api/videos.php?id="+id+"&callback=?",function(data){
-					var content = markerTemplate.find("#outer").clone();
+	<div id="player"></div>
+	<script>
+		var map;
+		var markers = [];
+		markerCluster = null;
+		function initMap() {
+			center = {lat: 41.7045216, lng: -86.233559};
+			map = new google.maps.Map($('#map')[0], {
+				zoom: 15,
+				streetViewControl: false,
+				center: center
+			});
+			markerCluster = new MarkerClusterer(map, markers,{imagePath: 'img/m'});
+			google.maps.event.addListener(markerCluster, 'clusterclick', function(cluster) {
+				map.setCenter(cluster.getCenter());
+				cluster.getMarkers();
+				cluster.getSize();
+			});
+		}
+		function marker(name,loc,id){
+			var marker = new google.maps.Marker({
+				position: loc,
+				map: map,
+				title: name
+			});
+			$.getJSON("api/videos.php?id="+id+"&callback=?",function(data){
+				var content = markerTemplate.find("#outer").clone();
 				var sort = data[0].length % 3;//handle 1 case eventually
 				switch(sort){//rec sould have at most 3
 					case 1:
@@ -220,7 +218,7 @@
 						var panel = double.find(".panel:eq("+i+")");
 						panel.find("img").attr("src","img/"+vid.pro.img);
 						panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
-						panel.addClass("panel-primary").attr("onclick","fullscreen($('video source').attr('src','mov/"+vid.vid+"').parent()[0])");
+						panel.addClass("panel-primary").attr("onclick","player.loadVideoById('"+vid.vid+"');fullscreen(player.a)");
 					});
 					content.find("#rec").append(double);
 					break;
@@ -284,115 +282,114 @@
 					popup(content.html());
 				});
 			});
-return marker;
-}
-</script>
-<script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
-<script type="text/javascript" src="lib/bootstrap.min.js"></script>
-<script src="lib/markerclusterer.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0m8B_Vwfn3FRIBkQk4gQWeTfjlxmRB6A&callback=initMap"
-async defer></script>
-<script type="text/javascript">
+			return marker;
+		}
+	</script>
+	<script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="lib/bootstrap.min.js"></script>
+	<script src="lib/markerclusterer.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0m8B_Vwfn3FRIBkQk4gQWeTfjlxmRB6A&callback=initMap" async defer></script>
+	<script type="text/javascript">
 
-	popup();
-	pullMarkers();
-	locate();
-	var visible = true;
-	var posMark = null;
-	markerTemplate = null;
-	$.get("api/markerTemplate.html",function(html){
-		markerTemplate = $(html);
-	})
-	$(function(){
-		$( window ).resize(function(){
-			$("#popup").removeClass("flow");
-			if(Math.ceil($("#popup").height()) < $("#popup")[0].scrollHeight - 10){
-				$("#popup").addClass("flow");
-			}
-			$("#map").height($(window).height()-$("nav").height());
-		}).resize();
-		$("#submit").click(function(e) {
-			if(visible){
-				searchq();
-				$('#search').val("");
-				$('#search-elem').mouseout();
+		popup();
+		pullMarkers();
+		locate();
+		var visible = true;
+		var posMark = null;
+		markerTemplate = null;
+		$.get("api/markerTemplate.html",function(html){
+			markerTemplate = $(html);
+		})
+		$(function(){
+			$( window ).resize(function(){
+				$("#popup").removeClass("flow");
+				if(Math.ceil($("#popup").height()) < $("#popup")[0].scrollHeight - 10){
+					$("#popup").addClass("flow");
+				}
+				$("#map").height($(window).height()-$("nav").height());
+			}).resize();
+			$("#submit").click(function(e) {
+				if(visible){
+					searchq();
+					$('#search').val("");
+					$('#search-elem').mouseout();
+				}
+			});
+			if($(window).width() < 480){
+				visible = false;
+				$("#search").hide().width("35%");
+				$("#search-elem").click(function(){
+					visible = true;
+					$(".search-hide").hide();
+					$("#search").show();
+				});
+				$(document).click(function(event) { 
+					if(!$(event.target).closest('#search-elem').length) {
+						visible = false;
+						$(".search-hide").show();
+						$("#search").hide();
+					}        
+				});
 			}
 		});
-		if($(window).width() < 480){
-			visible = false;
-			$("#search").hide().width("35%");
-			$("#search-elem").click(function(){
-				visible = true;
-				$(".search-hide").hide();
-				$("#search").show();
-			});
-			$(document).click(function(event) { 
-				if(!$(event.target).closest('#search-elem').length) {
-					visible = false;
-					$(".search-hide").show();
-					$("#search").hide();
-				}        
+		function pullMarkers(){
+			$.getJSON("api/markers.php?callback=?",function(data){
+				$.each(data,function(i,item){
+					var newmark = marker(item.name,item.loc,item.id);
+					markers.push(newmark);
+					if(markerCluster != null)
+						markerCluster.addMarker(newmark);
+				});
 			});
 		}
-	});
-	function pullMarkers(){
-		$.getJSON("api/markers.php?callback=?",function(data){
-			$.each(data,function(i,item){
-				var newmark = marker(item.name,item.loc,item.id);
-				markers.push(newmark);
-				if(markerCluster != null)
-					markerCluster.addMarker(newmark);
-			});
-		});
-	}
-	function searchq(){
-		var text = $('#search').val();
-		$.getJSON("api/search.php?query="+text+"&callback=?",function(data){
-			var content = "";
-			$.each(data,function(i,item){
-				content += "<div><a>"+item+"</a></div>";
-			});
+		function searchq(){
+			var text = $('#search').val();
+			$.getJSON("api/search.php?query="+text+"&callback=?",function(data){
+				var content = "";
+				$.each(data,function(i,item){
+					content += "<div><a>"+item+"</a></div>";
+				});
 
-			popup(content);
-		});
-	}
-	function pos(position) {
-		if(posMark==null){
-			map.setCenter({lat: position.coords.latitude, lng: position.coords.longitude});
-			posMark = new google.maps.Marker({
-				position: {lat: position.coords.latitude, lng: position.coords.longitude},
-				map: map,
-				icon: "https://mt.google.com/vt/icon/name=icons/spotlight/star_L_8x.png&scale=1"
+				popup(content);
 			});
 		}
-		posMark.setPosition({lat: position.coords.latitude, lng: position.coords.longitude});
-	}
-	function locate(){
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(pos);
-			setTimeout(locate, 500);
-		} else {
-			console.log("Geolocation is not supported by this browser.");
+		function pos(position) {
+			if(posMark==null){
+				map.setCenter({lat: position.coords.latitude, lng: position.coords.longitude});
+				posMark = new google.maps.Marker({
+					position: {lat: position.coords.latitude, lng: position.coords.longitude},
+					map: map,
+					icon: "https://mt.google.com/vt/icon/name=icons/spotlight/star_L_8x.png&scale=1"
+				});
+			}
+			posMark.setPosition({lat: position.coords.latitude, lng: position.coords.longitude});
 		}
-	}
-	function popup(content) {
-		if(content == undefined || content == ""){
-			$("#popup").hide();
-			$("#overlay").hide();
-		} else {
-			$("#popup").show();
-			$("#overlay").show();
-			$("#popup").html(content);
-			if($(window).width()<480){
-				$("#popup").css("height","initial");
+		function locate(){
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(pos);
+				setTimeout(locate, 500);
 			} else {
-				$("#popup").css("height","");
-			}
-			$("#popup").removeClass("flow");
-			if(Math.ceil($("#popup").height()) < $("#popup")[0].scrollHeight - 10){
-				$("#popup").addClass("flow");
+				console.log("Geolocation is not supported by this browser.");
 			}
 		}
+		function popup(content) {
+			if(content == undefined || content == ""){
+				$("#popup").hide();
+				$("#overlay").hide();
+			} else {
+				$("#popup").show();
+				$("#overlay").show();
+				$("#popup").html(content);
+				if($(window).width()<480){
+					$("#popup").css("height","initial");
+				} else {
+					$("#popup").css("height","");
+				}
+				$("#popup").removeClass("flow");
+				if(Math.ceil($("#popup").height()) < $("#popup")[0].scrollHeight - 10){
+					$("#popup").addClass("flow");
+				}
+			}
 			//$("video.aspect").each(function(){$(this).height($(this).width()*3/4);});
 		}
 		function fullscreen(elem){
@@ -405,6 +402,31 @@ async defer></script>
 			else if(elem.msRequestFullscreen)
 				elem.msRequestFullscreen();
 		}
+
+		var player;
+		function onYouTubeIframeAPIReady() {
+			player = new YT.Player('player', {
+				height: '720',
+				width: '1280',
+				playerVars: {
+					fs: 0,
+					modestbranding: 1,
+					rel: 0
+				},
+				events: {
+					'onReady': function(event){
+					},
+					'onStateChange': function(event){}
+				}
+			});
+		}
+
+		var tag = document.createElement('script');
+		tag.src = "https://www.youtube.com/iframe_api";
+		var firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+		
 	</script>
 </body>
 </html>
