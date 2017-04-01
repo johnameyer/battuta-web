@@ -89,10 +89,9 @@
 		.sm-hide {
 			display: none;
 		}
-		video {
-			display: none;
-			width: 100%;
-			height: 100%;
+		#player {
+			position:absolute;
+			z-index: -1000;
 		}
 		@media screen and (min-width: 480px) {
 			#popup {
@@ -167,9 +166,9 @@
 	</nav>
 
 	<div id="map"></div>
-	<div id="overlay" style="display: none;">
+	<div id="overlay" style="display: none;" onclick="popup()" >
 	</div>
-	<div id="popup" class="panel panel-default" style="display: none">
+	<div id="popup" class="panel panel-default"style="display: none">
 	</div>
 	<div id="player"></div>
 	<script>
@@ -196,40 +195,25 @@
 				map: map,
 				title: name
 			});
+
+			adid = "DXCsiSfg-ms";
 			$.getJSON("api/videos.php?id="+id+"&callback=?",function(data){
 				var content = markerTemplate.find("#outer").clone();
 				var sort = data[0].length % 3;//handle 1 case eventually
 				switch(sort){//rec sould have at most 3
 					case 1:
 					var single = markerTemplate.find("#inner-single").clone();
-					$.each(data[0],function(i,vid){
-						var panel = single.find(".panel:eq("+i+")");
-						panel.find("img").attr("src","img/"+vid.pro.img);
-						panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
-						panel.addClass("panel-primary").on("click",function(){
-							fullscreen($("video source").attr("src","mov/"+vid.vid).parent()[0]);
-						});
-					});
+					panelfunc(single,data[0],adid,"panel-primary");
 					content.find("#rec").append(single);
 					break;
 					case 2:
 					var double = markerTemplate.find("#inner-double").clone();
-					$.each(data[0],function(i,vid){
-						var panel = double.find(".panel:eq("+i+")");
-						panel.find("img").attr("src","img/"+vid.pro.img);
-						panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
-						panel.addClass("panel-primary").attr("onclick","player.loadVideoById('"+vid.vid+"');fullscreen(player.a)");
-					});
+					panelfunc(double,data[0],adid,"panel-primary");
 					content.find("#rec").append(double);
 					break;
 					case 0:
 					var triple = markerTemplate.find("#inner-triple").clone();
-					$.each(data[0],function(i,vid){
-						var panel = double.find(".panel:eq("+i+")");
-						panel.find("img").attr("src","img/"+vid.pro.img);
-						panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
-						panel.addClass("panel-primary").attr("onclick","fullscreen($('video source').attr('src','mov/"+vid.vid+"').parent()[0])");
-					});
+					panelfunc(triple,data[0],adid,"panel-primary");
 					content.find("#rec").append(triple);
 					break;
 				}
@@ -238,43 +222,26 @@
 				var x = 0;
 				for(x = 0; x < data[1].length / 3 - 1; x++){
 					var triple = markerTemplate.find("#inner-triple").clone();
-					$.each(data[1].slice(3*x,3*x+3),function(i,vid){
-						var panel = triple.find(".panel:eq("+i+")");
-						panel.find("img").attr("src","img/"+vid.pro.img);
-						panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
-						panel.addClass("panel-default").attr("onclick","fullscreen($('video source').attr('src','mov/"+vid.vid+"').parent()[0])");
-					});
+					panelfunc(triple,data[1].slice(3*x,3*x+3),adid,"panel-default");
 					content.find("#addl").append(triple.html());
 				}
 				switch(sort){
 					case 1:
 					var single = markerTemplate.find("#inner-single").clone();
-					$.each(data[1].slice(3*x,3*x+1),function(i,vid){
-						var panel = single.find(".panel:eq("+i+")");
-						panel.find("img").attr("src","img/"+vid.pro.img);
-						panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
-						panel.addClass("panel-default").attr("onclick","fullscreen($('video source').attr('src','mov/"+vid.vid+"').parent()[0])");
-					});
+
+					panelfunc(single,data[1].slice(3*x,3*x+1),adid,"panel-default");
 					content.find("#addl").append(single.html());
 					break;
 					case 2:
 					var double = markerTemplate.find("#inner-double").clone();
-					$.each(data[1].slice(3*x,3*x+2),function(i,vid){
-						var panel = double.find(".panel:eq("+i+")");
-						panel.find("img").attr("src","img/"+vid.pro.img);
-						panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
-						panel.addClass("panel-default").attr("onclick","fullscreen($('video source').attr('src','mov/"+vid.vid+"').parent()[0])");
-					});
+
+					panelfunc(triple,data[1].slice(3*x,3*x+2),adid,"panel-default");
 					content.find("#addl").append(double.html());
 					break;
 					case 0:
 					var triple = markerTemplate.find("#inner-triple").clone();
-					$.each(data[1].slice(3*x,3*x+3),function(i,vid){
-						var panel = triple.find(".panel:eq("+i+")");
-						panel.find("img").attr("src","img/"+vid.pro.img);
-						panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
-						panel.addClass("panel-default").attr("onclick","fullscreen($('video source').attr('src','mov/"+vid.vid+"').parent()[0])");
-					});
+
+					panelfunc(triple,data[1].slice(3*x,3*x+3),adid,"panel-default");
 					content.find("#addl").append(triple.html());
 					break;
 				}
@@ -283,6 +250,14 @@
 				});
 			});
 			return marker;
+		}
+		function panelfunc(cont,data,adid,addclass){
+			$.each(data,function(i,vid){
+				var panel = cont.find(".panel:eq("+i+")");
+				panel.find("img").attr("src","img/"+vid.pro.img);
+				panel.find(".panel-body p").html(vid.pro.name + ", " + vid.pro.age);
+				panel.addClass(addclass).attr("onclick","ad('"+adid+"');fullscreen(player.a);vid('"+vid.vid+"')");
+			});
 		}
 	</script>
 	<script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
@@ -408,19 +383,54 @@
 			player = new YT.Player('player', {
 				height: '720',
 				width: '1280',
+				//videoId:
 				playerVars: {
 					fs: 0,
 					modestbranding: 1,
-					rel: 0
+					rel: 0,
+					showInfor: 0,
+					iv_load_policy: 3,
+
+					//playlist?
+
 				},
 				events: {
 					'onReady': function(event){
-					},
-					'onStateChange': function(event){}
+					}
 				}
 			});
 		}
-
+		document.addEventListener("fullscreenchange", function( event ) {
+			if (!document.fullscreen)
+				player.stopVideo();
+		});
+		document.addEventListener("webkitfullscreenchange", function( event ) {
+			if (!document.webkitIsFullScreen)
+				player.stopVideo();
+		});
+		document.addEventListener("mozfullscreenchange", function( event ) {
+			if (!document.mozFullscreen)
+				player.stopVideo();
+		});
+		document.addEventListener("msfullscreenchange", function( event ) {
+			if (!document.msFullscreenElement)
+				player.stopVideo();
+		});
+		function ad(ad){
+			player.loadVideoById(ad);
+			$("#player").find(".ytp-chrome-bottom").remove();
+		}
+		function vid(vid){
+			var done = false;
+			listener = function(event) {
+				if (event.data == YT.PlayerState.ENDED && !done) {     
+					done = true;
+					player.loadVideoById(vid);
+					player.removeEventListener('onStateChange',listener);
+				}       
+			}
+			player.addEventListener('onStateChange',listener);
+		}
 		var tag = document.createElement('script');
 		tag.src = "https://www.youtube.com/iframe_api";
 		var firstScriptTag = document.getElementsByTagName('script')[0];
